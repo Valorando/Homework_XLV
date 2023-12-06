@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 
-namespace Homework_05_12_IV
+namespace Homework_05_12_VIII
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            //2 задание клиент
-            //1 задание - клиент
+            //Задание 4 - клиент
+
             IPAddress serverIP = IPAddress.Parse("127.0.0.1");
             int serverPort = 8888;
 
@@ -21,20 +21,19 @@ namespace Homework_05_12_IV
 
             try
             {
-                client.Connect(new IPEndPoint(serverIP, serverPort));
+                await client.ConnectAsync(new IPEndPoint(serverIP, serverPort));
                 Console.WriteLine("Подключено к серверу");
-                Console.WriteLine("/time - текущее время, /date - текущая дата");
+
+                Console.WriteLine("/time - показать текущее время /date - показать текущую дату");
                 Console.Write("Введите команду: ");
                 string command = Console.ReadLine();
-
                 byte[] data = Encoding.UTF8.GetBytes(command);
-                client.Send(data);
+                await client.SendAsync(new ArraySegment<byte>(data), SocketFlags.None);
 
                 data = new byte[256];
-                int bytes = client.Receive(data);
-                command = Encoding.UTF8.GetString(data, 0, bytes);
-                Console.WriteLine(command);
-
+                int bytesReceived = await client.ReceiveAsync(new ArraySegment<byte>(data), SocketFlags.None);
+                string response = Encoding.UTF8.GetString(data, 0, bytesReceived);
+                Console.WriteLine(response);
                 client.Shutdown(SocketShutdown.Both);
             }
             catch(Exception ex)
@@ -43,6 +42,7 @@ namespace Homework_05_12_IV
             }
             finally
             {
+                
                 client.Close();
                 Console.ReadLine();
             }

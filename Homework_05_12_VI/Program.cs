@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 
-
-namespace Homework_05_12_II
+namespace Homework_05_12_VI
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            //1 задание - клиент
+            //3 задание - клиент
+
             IPAddress serverIP = IPAddress.Parse("127.0.0.1");
             int serverPort = 8888;
 
@@ -21,30 +21,29 @@ namespace Homework_05_12_II
 
             try
             {
-                
-                client.Connect(new IPEndPoint(serverIP, serverPort));
+                await client.ConnectAsync(new IPEndPoint(serverIP, serverPort));
                 Console.WriteLine("Подключено к серверу");
 
                 string message = "Привет, сервер!";
                 byte[] data = Encoding.UTF8.GetBytes(message);
-                client.Send(data);
+                await client.SendAsync(new ArraySegment<byte>(data), SocketFlags.None);
 
                 data = new byte[256];
-                int bytes = client.Receive(data);
-                message = Encoding.UTF8.GetString(data, 0, bytes);
-
+                int bytesReceived = await client.ReceiveAsync(new ArraySegment<byte>(data), SocketFlags.None);
+                string response = Encoding.UTF8.GetString(data, 0, bytesReceived);
                 DateTime dt = DateTime.Now;
                 TimeSpan ts = dt.TimeOfDay;
-                Console.WriteLine($"В {ts} от [{((IPEndPoint)client.RemoteEndPoint).Address}] получена строка: {message} ");
-                client.Shutdown(SocketShutdown.Both);
+                Console.WriteLine($"В {ts} от [{((IPEndPoint)client.RemoteEndPoint).Address}] получена строка: {response} ");
+
+                
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка: {ex.Message}");
             }
             finally
             {
-                
+                client.Shutdown(SocketShutdown.Both);
                 client.Close();
                 Console.ReadLine();
             }

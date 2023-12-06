@@ -13,7 +13,6 @@ namespace Homework_05_12_IV
         static void Main(string[] args)
         {
             //2 задание клиент
-            //1 задание - клиент
             IPAddress serverIP = IPAddress.Parse("127.0.0.1");
             int serverPort = 8888;
 
